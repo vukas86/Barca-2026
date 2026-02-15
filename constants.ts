@@ -1,0 +1,106 @@
+import { Category, TravelCard, TimelineEvent } from './types';
+
+export const INITIAL_CARDS: TravelCard[] = [
+  {
+    id: '1',
+    category: Category.SIGHTS,
+    title: 'Sagrada Família',
+    description: 'Nedovršeno remek-delo Antonija Gaudija. Obavezno rezervisati karte unapred online.',
+    imageUrl: 'https://picsum.photos/id/122/800/600',
+    link: 'https://sagradafamilia.org/en/',
+  },
+  {
+    id: '2',
+    category: Category.SIGHTS,
+    title: 'Park Güell',
+    description: 'Javni park sa vrtovima i arhitektonskim elementima koji se nalazi na brdu Carmel.',
+    imageUrl: 'https://picsum.photos/id/1018/800/600',
+    link: 'https://parkguell.barcelona/en',
+  },
+  {
+    id: '3',
+    category: Category.FOOD,
+    title: 'La Boqueria Pijaca',
+    description: 'Najpoznatija pijaca u Barseloni. Odlično mesto za sveže voće, smutije i lokalne tapase.',
+    imageUrl: 'https://picsum.photos/id/292/800/600',
+    link: 'http://www.boqueria.barcelona/',
+  },
+  {
+    id: '4',
+    category: Category.NIGHTLIFE,
+    title: 'Razzmatazz',
+    description: 'Jedan od najvećih noćnih klubova u gradu sa 5 različitih soba i žanrova muzike.',
+    imageUrl: 'https://picsum.photos/id/453/800/600',
+    link: 'https://www.salarazzmatazz.com/',
+  },
+  {
+    id: '5',
+    category: Category.INFO,
+    title: 'T-Casual Karta',
+    description: 'Najisplativija karta za prevoz. 10 vožnji za oko 11 evra. Važi za metro i autobuse.',
+    imageUrl: 'https://picsum.photos/id/133/800/600',
+    link: 'https://www.tmb.cat/en/barcelona-fares-metro-bus/single-and-integrated/t-casual',
+  },
+];
+
+export const TIMELINE_DATA: TimelineEvent[] = [
+  {
+    id: 't1',
+    date: '16.04',
+    time: '18:50',
+    title: 'Let BG → BCN',
+    description: 'Polazak sa aerodroma Nikola Tesla.',
+    icon: 'plane',
+  },
+  {
+    id: 't2',
+    date: '16.04',
+    time: '21:35',
+    title: 'Sletanje u Barselonu',
+    description: 'Dolazak na aerodrom El Prat.',
+    icon: 'plane',
+  },
+  {
+    id: 't3',
+    date: '16.04',
+    time: '22:30',
+    title: 'Check-in Hostel',
+    description: 'Hostel Urbany BCN GO. Smeštaj nakon dolaska.',
+    icon: 'hotel',
+  },
+  {
+    id: 't4',
+    date: '20.04',
+    time: '11:00',
+    title: 'Check-out',
+    description: 'Odjava iz hostela i slobodno vreme do leta.',
+    icon: 'hotel',
+    isReturn: true,
+  },
+  {
+    id: 't5',
+    date: '20.04',
+    time: '22:20',
+    title: 'Poletanje iz BCN',
+    description: 'Povratni let za Beograd.',
+    icon: 'plane',
+    isReturn: true,
+  },
+  {
+    id: 't6',
+    date: '21.04',
+    time: '01:00',
+    title: 'Povratak u BGD',
+    description: 'Sletanje u Beograd.',
+    icon: 'plane',
+    isReturn: true,
+  },
+];
+
+export const TAB_LABELS: Record<Category, string> = {
+  [Category.SIGHTS]: '📍 ŠTA VIDETI',
+  [Category.FOOD]: '🍔 GDE JESTI',
+  [Category.NIGHTLIFE]: '🍸 IZLASCI',
+  [Category.EVENTS]: '🎉 DOGAĐAJI',
+  [Category.INFO]: 'ℹ️ KORISNE INFORMACIJE',
+};
