@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2 } from 'lucide-react';
 import Timeline from './Timeline';
 import AddCardModal from './AddCardModal';
@@ -7,9 +7,28 @@ import { INITIAL_CARDS, TAB_LABELS } from '../constants';
 
 const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState<Category>(Category.SIGHTS);
-  const [cards, setCards] = useState<TravelCard[]>(INITIAL_CARDS);
+  
+  // Inicijalizacija stanja kartica: Prvo proveravamo LocalStorage
+  const [cards, setCards] = useState<TravelCard[]>(() => {
+    const savedCards = localStorage.getItem('barcelona_cards');
+    if (savedCards) {
+      try {
+        return JSON.parse(savedCards);
+      } catch (error) {
+        console.error("Greška pri učitavanju kartica:", error);
+        return INITIAL_CARDS;
+      }
+    }
+    return INITIAL_CARDS;
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Svaki put kada se 'cards' promeni, čuvamo novo stanje u LocalStorage
+  useEffect(() => {
+    localStorage.setItem('barcelona_cards', JSON.stringify(cards));
+  }, [cards]);
 
   const handleAddCard = (newCard: TravelCard) => {
     setCards([newCard, ...cards]);
