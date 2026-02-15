@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Upload, Check } from 'lucide-react';
 import { Category, TravelCard } from '../types';
 import { TAB_LABELS } from '../constants';
@@ -7,23 +7,83 @@ interface AddCardModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (card: TravelCard) => void;
+  onEdit: (card: TravelCard) => void;
+  editingCard?: TravelCard | null;
 }
 
-const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd }) => {
+const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onEdit, editingCard }) => {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [link, setLink] = useState('');
   const [category, setCategory] = useState<Category>(Category.SIGHTS);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Reset or populate form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      if (editingCard) {
+        // Edit mode
+        setTitle(editingCard.title);
+        setDesc(editingCard.description);
+        setLink(editingCard.link);
+        setCategory(editingCard.category);
+        setImagePreview(editingCard.imageUrl);
+      } else {
+        // Add mode - reset
+        setTitle('');
+        setDesc('');
+        setLink('');
+        setCategory(Category.SIGHTS);
+        setImagePreview('');
+      }
+    }
+  }, [isOpen, editingCard]);
 
   if (!isOpen) return null;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setIsProcessing(true);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // Create canvas for resizing
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimensions (e.g. 800x600 is enough for a card)
+          const MAX_WIDTH = 600;
+          const MAX_HEIGHT = 600;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG with 0.7 quality to save space
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          
+          setImagePreview(dataUrl);
+          setIsProcessing(false);
+        };
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -31,22 +91,35 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd }) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newCard: TravelCard = {
-      id: Date.now().toString(),
-      title,
-      description: desc,
-      link,
-      category,
-      imageUrl: imagePreview || 'https://picsum.photos/800/600', // Fallback
-      dateAdded: Date.now(),
-    };
-    onAdd(newCard);
+    if (isProcessing) return;
+
+    const finalImage = imagePreview || 'https://picsum.photos/800/600';
+
+    if (editingCard) {
+      // Update existing card
+      const updatedCard: TravelCard = {
+        ...editingCard,
+        title,
+        description: desc,
+        link,
+        category,
+        imageUrl: finalImage,
+      };
+      onEdit(updatedCard);
+    } else {
+      // Create new card
+      const newCard: TravelCard = {
+        id: Date.now().toString(),
+        title,
+        description: desc,
+        link,
+        category,
+        imageUrl: finalImage,
+        dateAdded: Date.now(),
+      };
+      onAdd(newCard);
+    }
     
-    // Reset form
-    setTitle('');
-    setDesc('');
-    setLink('');
-    setImagePreview('');
     onClose();
   };
 
@@ -55,7 +128,9 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd }) =
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up">
         <div className="bg-blue-600 px-6 py-4 flex justify-between items-center">
-          <h3 className="text-white font-bold text-lg">Dodaj novu informaciju</h3>
+          <h3 className="text-white font-bold text-lg">
+            {editingCard ? 'Izmeni informaciju' : 'Dodaj novu informaciju'}
+          </h3>
           <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
             <X size={24} />
           </button>
@@ -80,18 +155,21 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd }) =
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Slika</label>
             <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden">
                 {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-xs text-gray-500">Klikni da otpremiš sliku</p>
+                    <p className="text-xs text-gray-500">
+                      {isProcessing ? 'Obrada slike...' : 'Klikni da otpremiš sliku'}
+                    </p>
                   </div>
                 )}
-                <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} required />
+                <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
               </label>
             </div>
+            <p className="text-xs text-gray-400 mt-1">*Slika će biti automatski smanjena radi uštede memorije.</p>
           </div>
 
           {/* Title */}
@@ -136,10 +214,11 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd }) =
           <div className="pt-4">
             <button 
               type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95"
+              disabled={isProcessing}
+              className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <Check size={20} />
-              Sačuvaj
+              {isProcessing ? 'Obrada...' : (editingCard ? 'Ažuriraj' : 'Sačuvaj')}
             </button>
           </div>
 

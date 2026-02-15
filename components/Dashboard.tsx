@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2 } from 'lucide-react';
+import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2 } from 'lucide-react';
 import Timeline from './Timeline';
 import AddCardModal from './AddCardModal';
 import { Category, TravelCard } from '../types';
@@ -23,21 +23,42 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCard, setEditingCard] = useState<TravelCard | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Svaki put kada se 'cards' promeni, čuvamo novo stanje u LocalStorage
   useEffect(() => {
-    localStorage.setItem('barcelona_cards', JSON.stringify(cards));
+    try {
+      localStorage.setItem('barcelona_cards', JSON.stringify(cards));
+    } catch (e) {
+      // Handle QuotaExceededError
+      console.error("Storage error:", e);
+      alert("⚠️ UPOZORENJE: Memorija pretraživača je puna!\n\nNe mogu da sačuvam nove izmene. Pokušajte da obrišete neke stare kartice ili da koristite slike manje rezolucije.");
+    }
   }, [cards]);
 
   const handleAddCard = (newCard: TravelCard) => {
     setCards([newCard, ...cards]);
   };
 
+  const handleUpdateCard = (updatedCard: TravelCard) => {
+    setCards(cards.map(card => card.id === updatedCard.id ? updatedCard : card));
+  };
+
   const handleDeleteCard = (id: string) => {
     if (window.confirm('Da li ste sigurni da želite da obrišete ovu informaciju?')) {
       setCards(cards.filter(card => card.id !== id));
     }
+  };
+
+  const openAddModal = () => {
+    setEditingCard(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (card: TravelCard) => {
+    setEditingCard(card);
+    setIsModalOpen(true);
   };
 
   const filteredCards = cards.filter(
@@ -107,7 +128,7 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
           </div>
           
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={openAddModal}
             className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform active:scale-95"
           >
             <Plus size={20} />
@@ -155,17 +176,29 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     {TAB_LABELS[card.category].split(' ')[1]}
                   </div>
                   
-                  {/* Delete Button - Top Left */}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDeleteCard(card.id);
-                    }}
-                    className="absolute top-2 left-2 bg-red-600 text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-700 hover:scale-110 z-20"
-                    title="Obriši"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {/* Action Buttons (Edit & Delete) - Top Left */}
+                  <div className="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                     <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openEditModal(card);
+                      }}
+                      className="bg-white/90 text-blue-600 p-2 rounded-full shadow-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
+                      title="Izmeni"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDeleteCard(card.id);
+                      }}
+                      className="bg-white/90 text-red-600 p-2 rounded-full shadow-lg hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+                      title="Obriši"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="p-6 flex-1 flex flex-col">
@@ -188,7 +221,7 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
           ) : (
             <div className="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-dashed border-gray-300">
               <p className="text-lg">Nema informacija u ovoj kategoriji.</p>
-              <button onClick={() => setIsModalOpen(true)} className="mt-4 text-blue-600 font-semibold hover:underline">
+              <button onClick={openAddModal} className="mt-4 text-blue-600 font-semibold hover:underline">
                 Dodaj prvu informaciju
               </button>
             </div>
@@ -200,6 +233,8 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onAdd={handleAddCard} 
+        onEdit={handleUpdateCard}
+        editingCard={editingCard}
       />
     </div>
   );
