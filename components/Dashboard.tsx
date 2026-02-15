@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ExternalLink, MapPin, AlertCircle, Search } from 'lucide-react';
+import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2 } from 'lucide-react';
 import Timeline from './Timeline';
 import AddCardModal from './AddCardModal';
 import { Category, TravelCard } from '../types';
@@ -13,6 +13,12 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
   const handleAddCard = (newCard: TravelCard) => {
     setCards([newCard, ...cards]);
+  };
+
+  const handleDeleteCard = (id: string) => {
+    if (window.confirm('Da li ste sigurni da želite da obrišete ovu informaciju?')) {
+      setCards(cards.filter(card => card.id !== id));
+    }
   };
 
   const filteredCards = cards.filter(
@@ -117,7 +123,7 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             filteredCards.map((card) => (
               <div 
                 key={card.id} 
-                className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 flex flex-col h-full"
+                className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 flex flex-col h-full relative"
               >
                 <div className="relative h-48 overflow-hidden">
                   <img 
@@ -125,9 +131,22 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     alt={card.title} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                  {/* Category Badge */}
+                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
                     {TAB_LABELS[card.category].split(' ')[1]}
                   </div>
+                  
+                  {/* Delete Button - Top Left */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteCard(card.id);
+                    }}
+                    className="absolute top-2 left-2 bg-red-600 text-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-700 hover:scale-110 z-20"
+                    title="Obriši"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
                 
                 <div className="p-6 flex-1 flex flex-col">
