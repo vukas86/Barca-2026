@@ -198,25 +198,33 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Kratak opis (2-3 linije)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                {isInfoCategory ? 'Detaljan opis' : 'Kratak opis (2-3 linije)'}
+            </label>
             <textarea 
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
               required
-              rows={3}
+              rows={isInfoCategory ? 8 : 3}
+              maxLength={1000}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-              placeholder="Opis..."
+              placeholder={isInfoCategory ? "Unesite detaljne informacije (do 1000 karaktera)..." : "Opis..."}
             />
+            <div className="text-right text-xs text-gray-400 mt-1">
+                {desc.length} / 1000
+            </div>
           </div>
 
           {/* Link */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Link ka više informacija</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                {isInfoCategory ? 'Link (Opciono)' : 'Link ka više informacija'}
+            </label>
             <input 
               type="url" 
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              required
+              required={!isInfoCategory}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="https://..."
             />

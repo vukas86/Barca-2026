@@ -170,15 +170,17 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-2">{card.title}</h3>
-                                    <p className="text-gray-600 leading-relaxed mb-3">{card.description}</p>
-                                    <a 
-                                        href={card.link} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 font-semibold hover:underline inline-flex items-center gap-1"
-                                    >
-                                        Saznaj više <ExternalLink size={14} />
-                                    </a>
+                                    <p className="text-gray-600 leading-relaxed mb-3 whitespace-pre-wrap">{card.description}</p>
+                                    {card.link && (
+                                        <a 
+                                            href={card.link} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 font-semibold hover:underline inline-flex items-center gap-1"
+                                        >
+                                            Saznaj više <ExternalLink size={14} />
+                                        </a>
+                                    )}
                                 </div>
                              </div>
 
