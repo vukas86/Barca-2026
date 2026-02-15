@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2 } from 'lucide-react';
+import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2, Info } from 'lucide-react';
 import Timeline from './Timeline';
 import AddCardModal from './AddCardModal';
 import { Category, TravelCard } from '../types';
@@ -157,76 +157,131 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
           })}
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCards.length > 0 ? (
-            filteredCards.map((card) => (
-              <div 
-                key={card.id} 
-                className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 flex flex-col h-full relative"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={card.imageUrl} 
-                    alt={card.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Category Badge */}
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-                    {TAB_LABELS[card.category].split(' ')[1]}
-                  </div>
-                  
-                  {/* Action Buttons (Edit & Delete) - Top Left */}
-                  <div className="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openEditModal(card);
-                      }}
-                      className="bg-white/90 text-blue-600 p-2 rounded-full shadow-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
-                      title="Izmeni"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleDeleteCard(card.id);
-                      }}
-                      className="bg-white/90 text-red-600 p-2 rounded-full shadow-lg hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
-                      title="Obriši"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">{card.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
-                    {card.description}
-                  </p>
-                  
-                  <a 
-                    href={card.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border-2 border-blue-600 text-blue-600 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
-                  >
-                    Pročitaj više <ExternalLink size={16} />
-                  </a>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-dashed border-gray-300">
-              <p className="text-lg">Nema informacija u ovoj kategoriji.</p>
-              <button onClick={openAddModal} className="mt-4 text-blue-600 font-semibold hover:underline">
-                Dodaj prvu informaciju
-              </button>
+        {/* CONTENT RENDERER */}
+        {activeTab === Category.INFO ? (
+            /* LIST VIEW FOR INFO */
+            <div className="flex flex-col gap-4">
+                {filteredCards.length > 0 ? (
+                    filteredCards.map((card) => (
+                        <div key={card.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all flex flex-col md:flex-row gap-6 items-start md:items-center justify-between group">
+                             <div className="flex items-start gap-4 flex-1">
+                                <div className="hidden md:flex bg-blue-100 text-blue-600 p-3 rounded-full flex-shrink-0">
+                                    <Info size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-2">{card.title}</h3>
+                                    <p className="text-gray-600 leading-relaxed mb-3">{card.description}</p>
+                                    <a 
+                                        href={card.link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 font-semibold hover:underline inline-flex items-center gap-1"
+                                    >
+                                        Saznaj više <ExternalLink size={14} />
+                                    </a>
+                                </div>
+                             </div>
+
+                             {/* Edit/Delete Actions for List View */}
+                             <div className="flex gap-2 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0 mt-2 md:mt-0 justify-end">
+                                <button
+                                    onClick={() => openEditModal(card)}
+                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2 md:block"
+                                >
+                                    <Edit2 size={18} />
+                                    <span className="md:hidden text-sm">Izmeni</span>
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteCard(card.id)}
+                                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 md:block"
+                                >
+                                    <Trash2 size={18} />
+                                    <span className="md:hidden text-sm">Obriši</span>
+                                </button>
+                             </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="py-12 text-center text-gray-500 bg-white rounded-2xl border border-dashed border-gray-300">
+                        <p className="text-lg">Nema informacija u ovoj kategoriji.</p>
+                        <button onClick={openAddModal} className="mt-4 text-blue-600 font-semibold hover:underline">
+                            Dodaj prvu informaciju
+                        </button>
+                    </div>
+                )}
             </div>
-          )}
-        </div>
+        ) : (
+            /* GRID VIEW FOR OTHER CATEGORIES */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredCards.length > 0 ? (
+                filteredCards.map((card) => (
+                <div 
+                    key={card.id} 
+                    className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 flex flex-col h-full relative"
+                >
+                    <div className="relative h-48 overflow-hidden">
+                    <img 
+                        src={card.imageUrl} 
+                        alt={card.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {/* Category Badge */}
+                    <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+                        {TAB_LABELS[card.category].split(' ')[1]}
+                    </div>
+                    
+                    {/* Action Buttons (Edit & Delete) - Top Left */}
+                    <div className="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                        <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            openEditModal(card);
+                        }}
+                        className="bg-white/90 text-blue-600 p-2 rounded-full shadow-lg hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
+                        title="Izmeni"
+                        >
+                        <Edit2 size={16} />
+                        </button>
+                        <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteCard(card.id);
+                        }}
+                        className="bg-white/90 text-red-600 p-2 rounded-full shadow-lg hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+                        title="Obriši"
+                        >
+                        <Trash2 size={16} />
+                        </button>
+                    </div>
+                    </div>
+                    
+                    <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">{card.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
+                        {card.description}
+                    </p>
+                    
+                    <a 
+                        href={card.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border-2 border-blue-600 text-blue-600 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
+                    >
+                        Pročitaj više <ExternalLink size={16} />
+                    </a>
+                    </div>
+                </div>
+                ))
+            ) : (
+                <div className="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-dashed border-gray-300">
+                <p className="text-lg">Nema informacija u ovoj kategoriji.</p>
+                <button onClick={openAddModal} className="mt-4 text-blue-600 font-semibold hover:underline">
+                    Dodaj prvu informaciju
+                </button>
+                </div>
+            )}
+            </div>
+        )}
       </div>
 
       <AddCardModal 

@@ -93,7 +93,14 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
     e.preventDefault();
     if (isProcessing) return;
 
-    const finalImage = imagePreview || 'https://picsum.photos/800/600';
+    // For INFO category, we don't need a real image if one wasn't provided
+    let finalImage = imagePreview;
+    
+    if (category === Category.INFO && !finalImage) {
+        finalImage = 'NO_IMAGE_NEEDED'; // Placeholder for INFO cards
+    } else if (!finalImage) {
+        finalImage = 'https://picsum.photos/800/600'; // Fallback for other categories
+    }
 
     if (editingCard) {
       // Update existing card
@@ -123,6 +130,8 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
     onClose();
   };
 
+  const isInfoCategory = category === Category.INFO;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
@@ -151,26 +160,28 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
             </select>
           </div>
 
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Slika</label>
-            <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden">
-                {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-xs text-gray-500">
-                      {isProcessing ? 'Obrada slike...' : 'Klikni da otpremiš sliku'}
-                    </p>
-                  </div>
-                )}
-                <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-              </label>
+          {/* Image Upload - HIDDEN FOR INFO CATEGORY */}
+          {!isInfoCategory && (
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slika</label>
+                <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden">
+                    {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                        <p className="text-xs text-gray-500">
+                        {isProcessing ? 'Obrada slike...' : 'Klikni da otpremiš sliku'}
+                        </p>
+                    </div>
+                    )}
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} required={!imagePreview && !editingCard} />
+                </label>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">*Slika će biti automatski smanjena radi uštede memorije.</p>
             </div>
-            <p className="text-xs text-gray-400 mt-1">*Slika će biti automatski smanjena radi uštede memorije.</p>
-          </div>
+          )}
 
           {/* Title */}
           <div>
@@ -181,7 +192,7 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
               onChange={(e) => setTitle(e.target.value)}
               required
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="npr. Sagrada Familia"
+              placeholder={isInfoCategory ? "npr. Važan telefon" : "npr. Sagrada Familia"}
             />
           </div>
 
@@ -194,7 +205,7 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
               required
               rows={3}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-              placeholder="Opis mesta ili događaja..."
+              placeholder="Opis..."
             />
           </div>
 
