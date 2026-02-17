@@ -8,34 +8,16 @@ import { INITIAL_CARDS, TAB_LABELS } from '../constants';
 const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState<Category>(Category.SIGHTS);
   
-  // Inicijalizacija stanja kartica: Prvo proveravamo LocalStorage
-  const [cards, setCards] = useState<TravelCard[]>(() => {
-    const savedCards = localStorage.getItem('barcelona_cards');
-    if (savedCards) {
-      try {
-        return JSON.parse(savedCards);
-      } catch (error) {
-        console.error("Greška pri učitavanju kartica:", error);
-        return INITIAL_CARDS;
-      }
-    }
-    return INITIAL_CARDS;
-  });
+  // IZMENA: Sada učitavamo podatke ISKLJUČIVO iz fajla constants.ts (INITIAL_CARDS).
+  // LocalStorage se ignoriše da bi podaci bili isti na svim uređajima.
+  const [cards, setCards] = useState<TravelCard[]>(INITIAL_CARDS);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<TravelCard | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Svaki put kada se 'cards' promeni, čuvamo novo stanje u LocalStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('barcelona_cards', JSON.stringify(cards));
-    } catch (e) {
-      // Handle QuotaExceededError
-      console.error("Storage error:", e);
-      alert("⚠️ UPOZORENJE: Memorija pretraživača je puna!\n\nNe mogu da sačuvam nove izmene. Pokušajte da obrišete neke stare kartice ili da koristite slike manje rezolucije.");
-    }
-  }, [cards]);
+  // Napomena: Uklonili smo useEffect koji je čuvao podatke u LocalStorage.
+  // Sada se podaci čuvaju samo privremeno u memoriji dok ne klikneš na "Sačuvaj kod".
 
   const handleAddCard = (newCard: TravelCard) => {
     setCards([newCard, ...cards]);
