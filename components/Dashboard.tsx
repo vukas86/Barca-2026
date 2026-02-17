@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2, Info } from 'lucide-react';
+import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2, Info, Copy, Save } from 'lucide-react';
 import Timeline from './Timeline';
 import AddCardModal from './AddCardModal';
 import { Category, TravelCard } from '../types';
@@ -59,6 +59,20 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const openEditModal = (card: TravelCard) => {
     setEditingCard(card);
     setIsModalOpen(true);
+  };
+
+  const handleExportData = () => {
+    // Formatiramo podatke da izgledaju tačno kao kod u constants.ts
+    // Čistimo JSON da ključevi nemaju navodnike gde nije potrebno radi lepšeg koda (opciono, ali JSON.stringify je sigurniji)
+    const jsonString = JSON.stringify(cards, null, 2);
+    const exportString = `export const INITIAL_CARDS: TravelCard[] = ${jsonString};`;
+    
+    navigator.clipboard.writeText(exportString).then(() => {
+      alert('✅ Podaci su kopirani!\n\nSada otvori fajl "constants.ts", obriši sve linije gde piše "export const INITIAL_CARDS..." i nalepi (Paste) ovo što si upravo kopirao.\n\nNakon toga uradi git push.');
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      alert('Došlo je do greške pri kopiranju.');
+    });
   };
 
   const filteredCards = cards.filter(
@@ -286,11 +300,29 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         )}
       </div>
 
+      {/* Developer Export Section */}
+      <div className="mt-12 py-8 bg-gray-200 border-t border-gray-300">
+        <div className="container mx-auto px-4 text-center">
+            <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-2">Admin Zona</h4>
+            <p className="text-xs text-gray-500 mb-4 max-w-lg mx-auto">
+                Pošto aplikacija nema bazu podataka, da bi se nove kartice videle na svim uređajima, moraš ih ubaciti u kod.
+                Klikni na dugme ispod da kopiraš sve trenutne podatke.
+            </p>
+            <button
+                onClick={handleExportData}
+                className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+                <Copy size={16} />
+                Kopiraj sve podatke za GitHub
+            </button>
+        </div>
+      </div>
+
       <AddCardModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onAdd={handleAddCard} 
-        onEdit={handleUpdateCard}
+        onEdit={handleUpdateCard} 
         editingCard={editingCard}
       />
     </div>
