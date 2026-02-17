@@ -20,22 +20,6 @@ export const INITIAL_CARDS: TravelCard[] = [
     "dateAdded": 1771364819301
   },
   {
-    "id": "1",
-    "category": "SIGHTS",
-    "title": "Sagrada Família",
-    "description": "Nedovršeno remek-delo Antonija Gaudija. Obavezno rezervisati karte unapred online.",
-    "imageUrl": "https://picsum.photos/id/122/800/600",
-    "link": "https://sagradafamilia.org/en/"
-  },
-  {
-    "id": "2",
-    "category": "SIGHTS",
-    "title": "Park Güell",
-    "description": "Javni park sa vrtovima i arhitektonskim elementima koji se nalazi na brdu Carmel.",
-    "imageUrl": "https://picsum.photos/id/1018/800/600",
-    "link": "https://parkguell.barcelona/en"
-  },
-  {
     "id": "3",
     "category": "FOOD",
     "title": "La Boqueria Pijaca",
