@@ -12,7 +12,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'BARCELONA' && password === 'travel*26') {
+    
+    // Čišćenje unosa: sklanjamo razmake sa krajeva (trim)
+    // Username pretvaramo u velika slova da ne bude osetljiv na case
+    const cleanUsername = username.trim().toUpperCase();
+    const cleanPassword = password.trim();
+
+    if (cleanUsername === 'BARCELONA' && cleanPassword === 'travel*26') {
       onLogin();
     } else {
       setError('Pogrešno korisničko ime ili lozinka.');
@@ -41,6 +47,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               placeholder="Unesite korisničko ime"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="username"
             />
           </div>
           
@@ -52,6 +61,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               placeholder="Unesite lozinku"
+              autoCapitalize="none"
+              autoCorrect="off"
             />
           </div>
 
