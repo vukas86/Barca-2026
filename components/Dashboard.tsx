@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2, Info, Copy, Save } from 'lucide-react';
+import { Plus, ExternalLink, MapPin, AlertCircle, Search, Trash2, Edit2, Info, Copy, Save, LogOut } from 'lucide-react';
 import Timeline from './Timeline';
 import AddCardModal from './AddCardModal';
 import { Category, TravelCard } from '../types';
@@ -63,12 +63,11 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
   const handleExportData = () => {
     // Formatiramo podatke da izgledaju tačno kao kod u constants.ts
-    // Čistimo JSON da ključevi nemaju navodnike gde nije potrebno radi lepšeg koda (opciono, ali JSON.stringify je sigurniji)
     const jsonString = JSON.stringify(cards, null, 2);
     const exportString = `export const INITIAL_CARDS: TravelCard[] = ${jsonString};`;
     
     navigator.clipboard.writeText(exportString).then(() => {
-      alert('✅ Podaci su kopirani!\n\nSada otvori fajl "constants.ts", obriši sve linije gde piše "export const INITIAL_CARDS..." i nalepi (Paste) ovo što si upravo kopirao.\n\nNakon toga uradi git push.');
+      alert('✅ KOD JE KOPIRAN!\n\nSada uradi sledeće:\n1. Otvori fajl "constants.ts"\n2. Obriši sve linije gde piše "export const INITIAL_CARDS..."\n3. Nalepi (Paste) ovo što si upravo kopirao\n4. Sačuvaj i uradi "git push"');
     }).catch(err => {
       console.error('Failed to copy: ', err);
       alert('Došlo je do greške pri kopiranju.');
@@ -111,12 +110,27 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             </p>
           </div>
         </div>
-        <button 
-          onClick={onLogout}
-          className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-white/30"
-        >
-          Odjavi se
-        </button>
+        
+        {/* Top Right Buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button 
+            onClick={handleExportData}
+            title="Sačuvaj izmene za GitHub"
+            className="bg-green-600/80 hover:bg-green-600 backdrop-blur-md text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-green-500/30 flex items-center gap-2 shadow-lg"
+          >
+            <Save size={18} />
+            <span className="hidden md:inline">Sačuvaj kod</span>
+          </button>
+          
+          <button 
+            onClick={onLogout}
+            title="Odjavi se"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-white/30 flex items-center gap-2"
+          >
+            <LogOut size={18} />
+            <span className="hidden md:inline">Odjavi se</span>
+          </button>
+        </div>
       </div>
 
       <div className="container mx-auto max-w-6xl px-4 mt-8">
@@ -298,24 +312,6 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             )}
             </div>
         )}
-      </div>
-
-      {/* Developer Export Section */}
-      <div className="mt-12 py-8 bg-gray-200 border-t border-gray-300">
-        <div className="container mx-auto px-4 text-center">
-            <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-2">Admin Zona</h4>
-            <p className="text-xs text-gray-500 mb-4 max-w-lg mx-auto">
-                Pošto aplikacija nema bazu podataka, da bi se nove kartice videle na svim uređajima, moraš ih ubaciti u kod.
-                Klikni na dugme ispod da kopiraš sve trenutne podatke.
-            </p>
-            <button
-                onClick={handleExportData}
-                className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-                <Copy size={16} />
-                Kopiraj sve podatke za GitHub
-            </button>
-        </div>
       </div>
 
       <AddCardModal 
