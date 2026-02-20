@@ -19,6 +19,13 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // New fields
+  const [location, setLocation] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [address, setAddress] = useState('');
+  const [price, setPrice] = useState('');
+
   // Reset or populate form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -29,6 +36,11 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
         setLink(editingCard.link);
         setCategory(editingCard.category);
         setImagePreview(editingCard.imageUrl);
+        setLocation(editingCard.location || '');
+        setDate(editingCard.date || '');
+        setTime(editingCard.time || '');
+        setAddress(editingCard.address || '');
+        setPrice(editingCard.price || '');
       } else {
         // Add mode - reset
         setTitle('');
@@ -36,6 +48,11 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
         setLink('');
         setCategory(Category.SIGHTS);
         setImagePreview('');
+        setLocation('');
+        setDate('');
+        setTime('');
+        setAddress('');
+        setPrice('');
       }
     }
   }, [isOpen, editingCard]);
@@ -99,38 +116,40 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
     if (category === Category.INFO && !finalImage) {
         finalImage = 'NO_IMAGE_NEEDED'; // Placeholder for INFO cards
     } else if (!finalImage) {
-        finalImage = 'https://picsum.photos/800/600'; // Fallback for other categories
+        if (category === Category.EVENTS) {
+            // Default concert image
+            finalImage = 'https://images.unsplash.com/photo-1459749411177-71299d1acc3e?q=80&w=2069&auto=format&fit=crop';
+        } else {
+            finalImage = 'https://picsum.photos/800/600'; // Fallback for other categories
+        }
     }
 
+    const cardData: TravelCard = {
+        id: editingCard ? editingCard.id : Date.now().toString(),
+        title,
+        description: desc,
+        link,
+        category,
+        imageUrl: finalImage,
+        dateAdded: editingCard ? editingCard.dateAdded : Date.now(),
+        location,
+        date,
+        time,
+        address,
+        price
+    };
+
     if (editingCard) {
-      // Update existing card
-      const updatedCard: TravelCard = {
-        ...editingCard,
-        title,
-        description: desc,
-        link,
-        category,
-        imageUrl: finalImage,
-      };
-      onEdit(updatedCard);
+      onEdit(cardData);
     } else {
-      // Create new card
-      const newCard: TravelCard = {
-        id: Date.now().toString(),
-        title,
-        description: desc,
-        link,
-        category,
-        imageUrl: finalImage,
-        dateAdded: Date.now(),
-      };
-      onAdd(newCard);
+      onAdd(cardData);
     }
     
     onClose();
   };
 
   const isInfoCategory = category === Category.INFO;
+  const isEventCategory = category === Category.EVENTS;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -195,6 +214,60 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ isOpen, onClose, onAdd, onE
               placeholder={isInfoCategory ? "npr. Važan telefon" : "npr. Sagrada Familia"}
             />
           </div>
+
+          {/* Event Specific Fields */}
+          {isEventCategory && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-blue-50 p-4 rounded-lg border border-blue-100">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lokacija (Mesto)</label>
+                <input 
+                  type="text" 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="npr. Palau Sant Jordi"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Adresa</label>
+                <input 
+                  type="text" 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="npr. Passeig Olímpic, 5-7"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+                <input 
+                  type="date" 
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vreme</label>
+                <input 
+                  type="time" 
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cena (€)</label>
+                <input 
+                  type="text" 
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="npr. 50"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           <div>

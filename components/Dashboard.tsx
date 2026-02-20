@@ -269,6 +269,41 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     
                     <div className="p-6 flex-1 flex flex-col">
                     <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">{card.title}</h3>
+                    
+                    {/* Event Details */}
+                    {card.category === Category.EVENTS && (
+                      <div className="mb-3 space-y-1 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        {(card.date || card.time) && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold min-w-[70px]">Kada:</span>
+                            <span>
+                              {card.date ? new Date(card.date).toLocaleDateString('sr-RS') : ''}
+                              {card.date && card.time ? ' u ' : ''}
+                              {card.time ? card.time : ''}
+                            </span>
+                          </div>
+                        )}
+                        {card.location && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold min-w-[70px]">Gde:</span>
+                            <span className="truncate" title={card.location}>{card.location}</span>
+                          </div>
+                        )}
+                        {card.address && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold min-w-[70px]">Adresa:</span>
+                            <span className="truncate" title={card.address}>{card.address}</span>
+                          </div>
+                        )}
+                        {card.price && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold min-w-[70px]">Cena:</span>
+                            <span className="text-green-600 font-bold">{card.price.includes('€') ? card.price : `${card.price}€`}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
                         {card.description}
                     </p>
